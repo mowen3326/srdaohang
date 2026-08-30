@@ -1,0 +1,74 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+  {{ template "admin_sidebar.html" . }}
+  <main class="admin-main">
+    <section class="tab-panel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>登录日志</h2>
+          {{ if .LoginLogs }}
+          <form method="post" action="{{ .AdminBase }}/loginlogs/clear" class="inline-form"
+                onsubmit="return confirm('确定清空全部登录日志？此操作不可恢复。')">
+            <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+            <button type="submit" class="btn-ghost">清空日志</button>
+          </form>
+          {{ end }}
+        </div>
+
+        <div class="login-log-table">
+          {{ if .LoginLogs }}
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>用户名</th>
+                <th>IP</th>
+                <th>结果</th>
+                <th>原因</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .LoginLogs }}
+              <tr>
+                <td>{{ .CreatedAt }}</td>
+                <td>{{ .Username }}</td>
+                <td>{{ .IP }}</td>
+                <td>
+                  {{ if .Success }}
+                    <span class="badge badge-success">成功</span>
+                  {{ else }}
+                    <span class="badge badge-fail">失败</span>
+                  {{ end }}
+                </td>
+                <td>
+                  {{ if eq .Reason "locked" }}登录失败次数过多{{ else if eq .Reason "bad_credentials" }}密码错误{{ end }}
+                </td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+
+          {{ if gt .LogPages 1 }}
+          <div class="pagination">
+            {{ if gt .LogPage 1 }}
+            <a class="page-btn" href="{{ .AdminBase }}/loginlogs?page={{ sub .LogPage 1 }}">上一页</a>
+            {{ end }}
+            <span class="page-info">第 {{ .LogPage }} / {{ .LogPages }} 页 · 共 {{ .LogTotal }} 条</span>
+            {{ if lt .LogPage .LogPages }}
+            <a class="page-btn" href="{{ .AdminBase }}/loginlogs?page={{ add .LogPage 1 }}">下一页</a>
+            {{ end }}
+          </div>
+          {{ end }}
+
+          {{ else }}
+          <p class="field-desc">暂无登录记录。</p>
+          {{ end }}
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ template "footer.html" . }}

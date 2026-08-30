@@ -1,0 +1,102 @@
+<div class="sidebar-mask" id="sidebar-mask" hidden></div>
+<aside class="admin-sidebar" id="admin-sidebar">
+  <div class="sidebar-head">
+    <span>后台菜单</span>
+    <button type="button" class="icon-btn" id="sidebar-close" aria-label="关闭菜单">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+    </button>
+  </div>
+  <nav class="sidebar-nav" aria-label="后台功能导航">
+    <a class="sidebar-item" data-nav="overview" href="{{ .AdminBase }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+        <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+        <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+        <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+      </svg>
+      <span>概览</span>
+    </a>
+
+    <a class="sidebar-item" data-nav="categories" href="{{ .AdminBase }}#categories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 5h6l2 3h8v11H4z"></path>
+      </svg>
+      <span>分类管理</span>
+      <em class="sidebar-count">{{ .CatCount }}</em>
+    </a>
+
+    <a class="sidebar-item" data-nav="links" href="{{ .AdminBase }}#links">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"></path>
+        <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"></path>
+      </svg>
+      <span>网址管理</span>
+      <em class="sidebar-count">{{ .LinkCount }}</em>
+    </a>
+
+    <button type="button" class="sidebar-item{{ if .SettingsOpen }} active{{ end }}" data-submenu="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 14H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path>
+      </svg>
+      <span>设置</span>
+      <svg class="sidebar-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"></path>
+      </svg>
+    </button>
+
+    <div class="sidebar-sub{{ if .SettingsOpen }} open{{ end }}" data-submenu-panel="settings">
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "display" }} active{{ end }}" href="{{ .AdminBase }}/display">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M3 12h4M17 12h4M12 3v4M12 17v4"></path>
+        </svg>
+        <span>网站设置</span>
+      </a>
+
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "import" }} active{{ end }}" href="{{ .AdminBase }}/import">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M12 3v12"></path>
+          <path d="M7 10l5 5 5-5"></path>
+          <path d="M4 21h16"></path>
+        </svg>
+        <span>导入收藏</span>
+      </a>
+
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "backup" }} active{{ end }}" href="{{ .AdminBase }}/backup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
+          <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path>
+          <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path>
+        </svg>
+        <span>数据管理</span>
+      </a>
+
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "backgrounds" }} active{{ end }}" href="{{ .AdminBase }}/backgrounds">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <path d="M21 15l-5-5L5 21"></path>
+        </svg>
+        <span>背景图</span>
+        {{ if .BGCount }}<em class="sidebar-count">{{ .BGCount }}</em>{{ end }}
+      </a>
+
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "password" }} active{{ end }}" href="{{ .AdminBase }}/password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="4" y="10" width="16" height="10" rx="2"></rect>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+        </svg>
+        <span>修改密码</span>
+      </a>
+
+      <a class="sidebar-sub-item{{ if eq .ActiveTab "loginlogs" }} active{{ end }}" href="{{ .AdminBase }}/loginlogs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M12 8v4l3 3"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+        </svg>
+        <span>登录日志</span>
+      </a>
+    </div>
+  </nav>
+</aside>

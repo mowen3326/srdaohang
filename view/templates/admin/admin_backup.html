@@ -1,0 +1,46 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+  {{ template "admin_sidebar.html" . }}
+  <main class="admin-main">
+    <section class="tab-panel">
+      <div class="panel">
+        <div class="panel-head"><h2>数据管理</h2></div>
+
+        <p class="admin-tip">用于备份或恢复分类与网址信息。</p>
+
+        {{ if .ImportMessage }}
+        <div class="alert alert-ok" role="alert">{{ .ImportMessage }}</div>
+        {{ end }}
+        {{ if .ImportError }}
+        <div class="alert" role="alert">{{ .ImportError }}</div>
+        {{ end }}
+
+        <div class="backup-grid">
+          <div class="backup-card">
+            <h3 class="panel-subtitle">导出备份</h3>
+            <p class="field-desc">将当前所有分类和网址导出为 .mo 文件，用于备份或迁移到其他服务器。</p>
+            <div class="backup-meta">
+              <span>分类 {{ .CatCount }} 个</span>
+              <span>网址 {{ .LinkCount }} 条</span>
+            </div>
+            <a href="{{ .AdminBase }}/backup/export" class="btn-primary btn-block">导出备份文件</a>
+          </div>
+
+          <div class="backup-card">
+            <h3 class="panel-subtitle">导入恢复</h3>
+            <p class="field-desc">导入之前导出的备份文件，追加到现有数据：同名分类自动合并，网址按地址去重，不会重复导入。</p>
+            <form method="post" action="{{ .AdminBase }}/backup/import" enctype="multipart/form-data" class="backup-upload">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="file" name="backup" accept=".mo,application/json" required>
+              <button type="submit" class="btn-primary btn-block" onclick="return confirm('确认导入该备份文件？将追加到现有数据。')">导入备份文件</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ template "footer.html" . }}

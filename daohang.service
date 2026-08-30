@@ -1,0 +1,25 @@
+[Unit]
+Description=daohang - personal navigation site
+After=network.target
+
+[Service]
+Type=simple
+# 部署目录（按实际路径修改）
+WorkingDirectory=/opt/daohang
+# 可执行文件路径（按实际文件名修改）
+ExecStart=/opt/daohang/daohang-linux-amd64
+Restart=on-failure
+RestartSec=3
+
+# 环境变量：会话密钥等（按需修改，生产务必设置 SESSION_SECRET）
+Environment=ADDR=:8080
+Environment=DB_PATH=/opt/daohang/data/daohang.db
+Environment=SESSION_SECRET=change-me-to-a-random-string
+# Environment=SECURE_COOKIE=1
+
+# 权限收紧：非 root 用户运行（可选，需要先创建该用户）
+# User=daohang
+# Group=daohang
+
+[Install]
+WantedBy=multi-user.target

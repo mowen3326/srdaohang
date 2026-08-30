@@ -1,0 +1,31 @@
+name: srdaohang
+
+services:
+  daohang:
+    build: .
+    image: srdaohang:latest
+    container_name: srdaohang
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # 必须设置。生成方式：head -c 32 /dev/urandom | base64
+      # 未设置时 compose 会直接报错，避免误用内置默认密钥。
+      SESSION_SECRET: ${SESSION_SECRET:?请先设置 SESSION_SECRET 环境变量}
+      ADDR: ":8080"
+      DB_PATH: /app/data/daohang.db
+      # 通过 HTTPS 访问时改成 1
+      SECURE_COOKIE: "0"
+      # 前面有 Nginx 等反向代理时改成 1，才会使用 X-Forwarded-For
+      TRUST_PROXY: "0"
+      TZ: Asia/Shanghai
+    volumes:
+      # 数据直接落在项目目录 ./data，备份 / 迁移拷目录即可
+      # Linux 服务器上首次启动前先执行：mkdir -p data && sudo chown -R 10001:10001 data
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,12 @@
+{{ template "head.html" . }}
+
+<main class="page wrap">
+  <div class="empty-state">
+    <div class="empty-emoji">{{ if eq .Code 404 }}🔍{{ else }}⚠️{{ end }}</div>
+    <h2>{{ .Code }}</h2>
+    <p>{{ .Message }}</p>
+    <a class="btn-primary" href="/">返回首页</a>
+  </div>
+</main>
+
+{{ template "footer.html" . }}

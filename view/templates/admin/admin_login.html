@@ -1,0 +1,47 @@
+{{ template "head.html" . }}
+
+<main class="login-page">
+  <form class="login-card" method="post" action="{{ .AdminBase }}/login">
+    {{ if .Next }}<input type="hidden" name="next" value="{{ .Next }}">{{ end }}
+    <div class="login-brand">
+      <div class="login-logo">
+        {{ if and .LogoLight .LogoDark }}
+          {{ if eq .LogoLight .LogoDark }}
+            <img src="/uploads/{{ .LogoLight }}" alt="">
+          {{ else }}
+            <img src="/uploads/{{ .LogoLight }}" alt="" class="logo-light">
+            <img src="/uploads/{{ .LogoDark }}" alt="" class="logo-dark">
+          {{ end }}
+        {{ else }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3.2 2"></path>
+          </svg>
+        {{ end }}
+      </div>
+      <h1>{{ .SiteName }}</h1>
+      <p>欢迎登录</p>
+    </div>
+
+    {{ if .Locked }}
+    <div class="alert alert-warn" role="alert">登录失败次数过多，请 15 分钟后再试</div>
+    {{ else if .Failed }}
+    <div class="alert" role="alert">用户名或密码不正确</div>
+    {{ end }}
+
+    <label class="field">
+      <span>用户名</span>
+      <input type="text" name="username" required autofocus autocomplete="username">
+    </label>
+
+    <label class="field">
+      <span>密码</span>
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+
+    <button type="submit" class="btn-primary btn-block">登 录</button>
+    <a class="login-back" href="/">← 返回首页</a>
+  </form>
+</main>
+
+{{ template "footer.html" . }}

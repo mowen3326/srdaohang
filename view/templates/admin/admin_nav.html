@@ -1,0 +1,36 @@
+<header class="site-header">
+  <div class="wrap header-inner">
+    <button type="button" class="icon-btn hamburger-btn" id="hamburger-btn" aria-label="打开菜单" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <a class="brand" href="/">
+      <span class="brand-logo{{ if .Logo }} has-img{{ end }}" aria-hidden="true">
+        {{ if and .LogoLight .LogoDark }}
+          {{ if eq .LogoLight .LogoDark }}
+            <img src="/uploads/{{ .LogoLight }}" alt="" class="brand-logo-img">
+          {{ else }}
+            <img src="/uploads/{{ .LogoLight }}" alt="" class="brand-logo-img logo-light">
+            <img src="/uploads/{{ .LogoDark }}" alt="" class="brand-logo-img logo-dark">
+          {{ end }}
+        {{ else }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3.2 2"></path>
+          </svg>
+        {{ end }}
+      </span>
+      <span class="brand-text">{{ .SiteName }}<em class="brand-badge">后台</em></span>
+    </a>
+
+    <div class="admin-actions">
+      <a class="btn-ghost" href="/" target="_blank" rel="noopener">查看前台</a>
+      <form method="post" action="{{ .AdminBase }}/logout" class="inline-form">
+        <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+        <button type="submit" class="btn-ghost">退出登录</button>
+      </form>
+    </div>
+  </div>
+</header>

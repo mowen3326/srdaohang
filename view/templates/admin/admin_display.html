@@ -1,0 +1,186 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+  {{ template "admin_sidebar.html" . }}
+  <main class="admin-main">
+    <section class="tab-panel">
+      <div class="panel">
+        <div class="panel-head"><h2>网站设置</h2></div>
+
+
+
+        <h3 class="panel-subtitle">站点 Logo</h3>
+
+        <div class="logo-row">
+          <div class="logo-preview">
+            {{ if .LogoLight }}
+              <img src="/uploads/{{ .LogoLight }}" alt="浅色 Logo">
+            {{ else }}
+              <span class="logo-preview-default">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7v5l3.2 2"></path>
+                </svg>
+              </span>
+            {{ end }}
+          </div>
+          <div class="logo-actions">
+            <span class="logo-label">浅色主题</span>
+            <form method="post" action="{{ .AdminBase }}/display/logo" enctype="multipart/form-data" class="logo-upload">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="hidden" name="theme" value="light">
+              <input type="file" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" required>
+              <button type="submit" class="btn-primary">上传浅色 Logo</button>
+            </form>
+            {{ if .LogoLight }}
+            <form method="post" action="{{ .AdminBase }}/display/logo/clear" class="inline-form"
+                  onsubmit="return confirm('确定清空浅色 Logo？')">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="hidden" name="theme" value="light">
+              <button type="submit" class="btn-ghost">清空浅色</button>
+            </form>
+            {{ end }}
+          </div>
+        </div>
+
+        <div class="logo-row">
+          <div class="logo-preview">
+            {{ if .LogoDark }}
+              <img src="/uploads/{{ .LogoDark }}" alt="暗黑 Logo">
+            {{ else }}
+              <span class="logo-preview-default">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M12 7v5l3.2 2"></path>
+                </svg>
+              </span>
+            {{ end }}
+          </div>
+          <div class="logo-actions">
+            <span class="logo-label">暗黑主题</span>
+            <form method="post" action="{{ .AdminBase }}/display/logo" enctype="multipart/form-data" class="logo-upload">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="hidden" name="theme" value="dark">
+              <input type="file" name="logo" accept="image/jpeg,image/png,image/gif,image/webp" required>
+              <button type="submit" class="btn-primary">上传暗黑 Logo</button>
+            </form>
+            {{ if .LogoDark }}
+            <form method="post" action="{{ .AdminBase }}/display/logo/clear" class="inline-form"
+                  onsubmit="return confirm('确定清空暗黑 Logo？')">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="hidden" name="theme" value="dark">
+              <button type="submit" class="btn-ghost">清空暗黑</button>
+            </form>
+            {{ end }}
+          </div>
+        </div>
+        <p class="field-desc">可分别为浅色、暗黑主题上传 Logo；只上传其中一个时，两个主题共用它。支持 JPG / PNG / GIF / WebP。</p>
+
+        <h3 class="panel-subtitle">站点图标（Favicon）</h3>
+
+        <div class="logo-row">
+          <div class="logo-preview">
+            {{ if .Favicon }}
+              <img src="/uploads/{{ .Favicon }}" alt="当前 Favicon">
+            {{ else }}
+              <span class="dim">未设置</span>
+            {{ end }}
+          </div>
+          <div class="logo-actions">
+            <form method="post" action="{{ .AdminBase }}/display/favicon" enctype="multipart/form-data" class="logo-upload">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <input type="file" name="favicon" accept=".ico,image/x-icon,image/vnd.microsoft.icon,image/png,image/jpeg,image/webp,image/gif" required>
+              <button type="submit" class="btn-primary">上传 Favicon</button>
+            </form>
+            {{ if .Favicon }}
+            <form method="post" action="{{ .AdminBase }}/display/favicon/clear" class="inline-form"
+                  onsubmit="return confirm('确定清空已上传的站点图标？清空后浏览器标签页不再显示图标。')">
+              <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+              <button type="submit" class="btn-ghost">清空图标</button>
+            </form>
+            {{ end }}
+          </div>
+        </div>
+        <p class="field-desc">浏览器标签页显示的小图标；默认不显示，需要的请自行上传。支持 ICO / PNG / JPG / WebP / GIF。</p>
+
+        <form method="post" action="{{ .AdminBase }}/display" class="settings-form">
+          <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+          <h3 class="panel-subtitle">站点信息</h3>
+
+          <label class="field">
+            <span>网站名称</span>
+            <input type="text" name="site_name" value="{{ .SiteName }}" placeholder="Sr网址导航">
+            <em class="field-desc">显示在前台与后台顶栏的站点名称；留空则恢复默认「Sr网址导航」。</em>
+          </label>
+
+          <label class="check check-lg">
+            <input type="checkbox" name="require_login"{{ if .RequireLogin }} checked{{ end }}>
+            <span>前台访问需要登录</span>
+            <em class="check-desc">开启后，未登录用户访问前台会自动跳转到登录页</em>
+          </label>
+
+          <label class="field">
+            <span>后台访问路径</span>
+            <input type="text" name="admin_path" value="{{ .AdminPath }}" placeholder="admin">
+            <em class="field-desc">后台地址的前缀，默认 admin（访问 /admin）。改为如 panel 后访问 /panel，修改后需重启服务生效。仅允许字母、数字、下划线、连字符。</em>
+          </label>
+
+          <h3 class="panel-subtitle">网址显示</h3>
+
+          <label class="check check-lg">
+            <input type="checkbox" name="show_link_url"{{ if .ShowLinkURL }} checked{{ end }}>
+            <span>显示网址链接文字</span>
+            <em class="check-desc">在卡片上显示网址地址（如 github.com）</em>
+          </label>
+
+          <label class="check check-lg">
+            <input type="checkbox" name="show_link_icon"{{ if .ShowLinkIcon }} checked{{ end }}>
+            <span>显示网址图标</span>
+            <em class="check-desc">显示每个网址卡片的图标（favicon 或 Emoji）</em>
+          </label>
+
+          <label class="check check-lg">
+            <input type="checkbox" name="show_cat_icon"{{ if .ShowCatIcon }} checked{{ end }}>
+            <span>显示分类图标</span>
+            <em class="check-desc">显示分类标题旁的 Emoji 图标</em>
+          </label>
+
+          <h3 class="panel-subtitle">前台默认偏好</h3>
+
+          <label class="field">
+            <span>默认主题</span>
+            <select name="default_theme">
+              <option value="light"{{ if eq .DefaultTheme "light" }} selected{{ end }}>浅色</option>
+              <option value="dark"{{ if eq .DefaultTheme "dark" }} selected{{ end }}>暗色</option>
+              <option value="auto"{{ if eq .DefaultTheme "auto" }} selected{{ end }}>跟随系统</option>
+            </select>
+            <em class="field-desc">前台默认使用的主题；用户点击前台按钮切换的主题仅本地生效，清缓存后回到此默认值。</em>
+          </label>
+
+          <label class="field">
+            <span>默认显示模式</span>
+            <select name="default_view">
+              <option value="grid"{{ if eq .DefaultView "grid" }} selected{{ end }}>图标列表</option>
+              <option value="list"{{ if eq .DefaultView "list" }} selected{{ end }}>文字列表</option>
+              <option value="icon"{{ if eq .DefaultView "icon" }} selected{{ end }}>大图标</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>默认每行列数</span>
+            <input type="number" name="default_cols" min="0" max="12" step="1"
+                   value="{{ .DefaultCols }}" placeholder="0 表示自适应">
+            <em class="field-desc">0 表示自适应宽度；也可手动指定 1-12 列。</em>
+          </label>
+
+          <div class="dialog-actions">
+            <button type="submit" class="btn-primary">保存设置</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ template "footer.html" . }}

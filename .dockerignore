@@ -1,0 +1,22 @@
+# 版本控制
+.git
+.gitignore
+
+# 构建产物与本地二进制
+dist/
+daohang
+daohang.exe
+*.exe
+
+# 运行时数据与密钥
+data/
+.env
+
+# 本地文档
+DEPLOY.md
+README.md
+
+# Docker 自身文件
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light" data-view="grid">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>{{ if .Title }}{{ .Title }} · {{ end }}{{ with .SiteName }}{{ . }}{{ else }}Sr网址导航{{ end }}</title>
+{{ if .Favicon }}<link rel="icon" href="/uploads/{{ .Favicon }}">{{ else }}<link rel="icon" href="data:,">{{ end }}
+<link rel="stylesheet" href="/static/theme.css">
+<link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+{{ if .IsAdmin }}<link rel="stylesheet" href="/static/admin.css">{{ end }}
+<script>
+/* 首屏前置应用显示配置，避免主题/布局闪烁（必须内联，不可外链）。
+   配置来源：后台数据库下发（.DefaultTheme/.DefaultView/.DefaultCols），
+   其中主题允许被本地 localStorage 覆盖（用户手动切换）。 */
+(function () {
+  var KEY = 'daohang:theme';
+  var d = document.documentElement;
+  var defTheme = "{{ with .DefaultTheme }}{{ . }}{{ else }}light{{ end }}";
+  var defView  = "{{ with .DefaultView }}{{ . }}{{ else }}grid{{ end }}";
+  var defCols  = {{ with .DefaultCols }}{{ . }}{{ else }}0{{ end }};
+  function capFor(w) { return w < 420 ? 2 : w < 768 ? 3 : w < 1200 ? 6 : 12; }
+  try {
+    // 主题：本地手动切换优先，否则用后台默认主题
+    var theme = localStorage.getItem(KEY) || defTheme;
+    if (theme === 'auto' || !theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    d.dataset.theme = theme;
+
+    // 显示模式：后台配置
+    d.dataset.view = defView || 'grid';
+
+    // 列数：后台配置，0 为自适应
+    var cols = parseInt(defCols, 10);
+    if (!isNaN(cols) && cols >= 1) {
+      var c = Math.min(cols, capFor(window.innerWidth));
+      d.dataset.cols = String(c);
+      d.style.setProperty('--cols', String(c));
+    }
+  } catch (e) {
+    d.dataset.theme = 'light';
+    d.dataset.view = 'grid';
+  }
+})();
+</script>
+</head>
+<body{{ if .Background }} class="has-background"{{ end }}{{ if .AdminBase }} data-admin-base="{{ .AdminBase }}"{{ end }}>

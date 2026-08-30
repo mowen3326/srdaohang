@@ -1,0 +1,255 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+
+  {{ template "admin_sidebar.html" . }}
+
+  <main class="admin-main">
+
+    <!-- 概览 -->
+    <section class="tab-panel" data-panel="overview">
+      <div class="stats">
+        <div class="stat"><span class="stat-num">{{ .CatCount }}</span><span class="stat-label">分类</span></div>
+        <div class="stat"><span class="stat-num">{{ .LinkCount }}</span><span class="stat-label">网址</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>快速开始</h2></div>
+        <ol class="guide">
+          <li>先在<b>分类管理</b>里建几个分类，比如「开发工具」「设计素材」。</li>
+          <li>再到<b>网址管理</b>里添加网址，选择所属分类。</li>
+          <li>图标留空会自动读取目标站点的 favicon；也可以填 Emoji、图片地址或 FontAwesome 图标。</li>
+        </ol>
+        <div class="guide-actions">
+          <button type="button" class="btn-primary" data-goto="categories">去建分类</button>
+          <button type="button" class="btn-ghost" data-goto="links">去加网址</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 分类管理 -->
+    <section class="tab-panel" data-panel="categories" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>分类管理</h2>
+          <form method="get" action="{{ .AdminBase }}" class="search-form" data-tab="categories">
+            <input type="hidden" name="cat_page" value="1">
+            <input type="search" name="cat_q" value="{{ .CatQ }}" placeholder="搜索分类名称…" aria-label="搜索分类">
+          </form>
+          <button type="button" class="btn-primary" data-open="cat-dialog">+ 新增分类</button>
+        </div>
+
+        {{ if .Categories }}
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr><th style="width:64px">排序</th><th>名称</th><th>图标</th><th style="width:140px">操作</th></tr>
+            </thead>
+            <tbody>
+            {{ range .Categories }}
+              <tr data-id="{{ .ID }}" data-name="{{ .Name }}" data-icon="{{ .Icon }}" data-sort="{{ .SortOrder }}">
+                <td class="dim" data-label="排序">{{ .SortOrder }}</td>
+                <td class="strong cell-title" data-label="名称">{{ .Name }}</td>
+                <td data-label="图标">{{ if .Icon }}{{ .Icon }}{{ else }}<span class="dim">自动</span>{{ end }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-mini" data-edit-cat="{{ .ID }}">编辑</button>
+                  <form method="post" action="{{ $.AdminBase }}/categories/{{ .ID }}/delete" class="inline-form"
+                        onsubmit="return confirm('删除「{{ .Name }}」会同时删除其下所有网址，确定继续？')">
+                    <input type="hidden" name="_csrf" value="{{ $.CSRFToken }}">
+                    <button type="submit" class="btn-mini danger">删除</button>
+                  </form>
+                </td>
+              </tr>
+            {{ end }}
+            </tbody>
+          </table>
+        </div>
+        {{ if gt .CatPages 1 }}
+        <div class="pagination">
+          {{ if gt .CatPage 1 }}
+          <a class="page-btn" href="{{ .AdminBase }}?cat_page={{ sub .CatPage 1 }}&cat_q={{ .CatQ }}#categories">上一页</a>
+          {{ end }}
+          <span class="page-info">第 {{ .CatPage }} / {{ .CatPages }} 页 · 共 {{ .CatTotal }} 个</span>
+          {{ if lt .CatPage .CatPages }}
+          <a class="page-btn" href="{{ .AdminBase }}?cat_page={{ add .CatPage 1 }}&cat_q={{ .CatQ }}#categories">下一页</a>
+          {{ end }}
+        </div>
+        {{ end }}
+        {{ else }}
+          <p class="panel-empty">还没有分类，先添加一个吧</p>
+        {{ end }}
+      </div>
+    </section>
+
+    <!-- 网址管理 -->
+    <section class="tab-panel" data-panel="links" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>网址管理</h2>
+          <form method="get" action="{{ .AdminBase }}" class="search-form link-filter-form" data-tab="links">
+            <input type="hidden" name="link_page" value="1">
+            <select name="link_cat" aria-label="按分类筛选">
+              <option value="">全部分类</option>
+              {{ range .AllCategories }}
+              <option value="{{ .ID }}"{{ if eq $.LinkCat .ID }} selected{{ end }}>{{ .Name }}</option>
+              {{ end }}
+            </select>
+            <input type="search" name="link_q" value="{{ .LinkQ }}" placeholder="搜索名称或网址…" aria-label="搜索网址">
+          </form>
+          <button type="button" class="btn-primary" data-open="link-dialog">+ 新增网址</button>
+        </div>
+
+        {{ if .Links }}
+        <form method="post" action="{{ .AdminBase }}/links/delete" id="link-batch-form">
+          <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+          <input type="hidden" name="ids" id="link-batch-ids" value="">
+          <input type="hidden" name="link_cat" value="{{ .LinkCat }}">
+          <input type="hidden" name="link_q" value="{{ .LinkQ }}">
+          <div class="batch-bar">
+            <label class="batch-check">
+              <input type="checkbox" id="link-select-all" aria-label="全选本页">
+              <span>全选本页</span>
+            </label>
+            <button type="submit" class="btn-mini danger" id="link-batch-delete" disabled>删除选中</button>
+          </div>
+        </form>
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:36px"><input type="checkbox" class="link-check-all" aria-label="全选本页"></th>
+                <th>名称</th><th>网址</th><th style="width:110px">分类</th>
+                <th style="width:64px">图标</th><th style="width:60px">排序</th><th style="width:140px">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+            {{ range .Links }}
+              <tr data-id="{{ .ID }}" data-title="{{ .Title }}" data-url="{{ .URL }}"
+                  data-icon="{{ .Icon }}" data-desc="{{ .Description }}"
+                  data-cat="{{ .CategoryID }}" data-sort="{{ .SortOrder }}">
+                <td class="link-check-cell"><input type="checkbox" class="link-check" value="{{ .ID }}" aria-label="选择 {{ .Title }}"></td>
+                <td class="strong cell-title" data-label="名称">{{ .Title }}</td>
+                <td class="ellipsis" data-label="网址"><a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></td>
+                <td class="dim" data-label="分类">
+                  {{ $cid := .CategoryID }}
+                  {{ range $.AllCategories }}{{ if eq .ID $cid }}{{ .Name }}{{ end }}{{ end }}
+                </td>
+                <td data-label="图标">{{ if .Icon }}{{ .Icon }}{{ else }}<span class="dim">自动</span>{{ end }}</td>
+                <td class="dim" data-label="排序">{{ .SortOrder }}</td>
+                <td class="actions">
+                  <button type="button" class="btn-mini" data-edit-link="{{ .ID }}">编辑</button>
+                  <form method="post" action="{{ $.AdminBase }}/links/{{ .ID }}/delete" class="inline-form"
+                        onsubmit="return confirm('确定删除「{{ .Title }}」？')">
+                    <input type="hidden" name="_csrf" value="{{ $.CSRFToken }}">
+                    <input type="hidden" name="link_cat" value="{{ $.LinkCat }}">
+                    <input type="hidden" name="link_q" value="{{ $.LinkQ }}">
+                    <button type="submit" class="btn-mini danger">删除</button>
+                  </form>
+                </td>
+              </tr>
+            {{ end }}
+            </tbody>
+          </table>
+        </div>
+        {{ if gt .LinkPages 1 }}
+        <div class="pagination">
+          {{ if gt .LinkPage 1 }}
+          <a class="page-btn" href="{{ .AdminBase }}?link_page={{ sub .LinkPage 1 }}&link_q={{ .LinkQ }}&link_cat={{ .LinkCat }}#links">上一页</a>
+          {{ end }}
+          <span class="page-info">第 {{ .LinkPage }} / {{ .LinkPages }} 页 · 共 {{ .LinkTotal }} 条 · 本页 {{ .LinkPageSize }} 条</span>
+          {{ if lt .LinkPage .LinkPages }}
+          <a class="page-btn" href="{{ .AdminBase }}?link_page={{ add .LinkPage 1 }}&link_q={{ .LinkQ }}&link_cat={{ .LinkCat }}#links">下一页</a>
+          {{ end }}
+        </div>
+        {{ else if gt .LinkTotal 0 }}
+        <div class="pagination">
+          <span class="page-info">共 {{ .LinkTotal }} 条 · 本页 {{ .LinkPageSize }} 条</span>
+        </div>
+        {{ end }}
+        {{ else }}
+          <p class="panel-empty">还没有网址，先添加一个吧</p>
+        {{ end }}
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 分类编辑弹窗 -->
+<dialog class="dialog" id="cat-dialog">
+  <form method="post" id="cat-form" action="{{ .AdminBase }}/categories">
+    <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+    <h3 class="dialog-title" id="cat-dialog-title">新增分类</h3>
+
+    <label class="field">
+      <span>名称 <b class="req">*</b></span>
+      <input type="text" name="name" id="cat-name" required maxlength="64" placeholder="例如：开发工具">
+    </label>
+
+    <label class="field">
+      <span>图标 <em class="field-hint">（Emoji / 图片地址 / FontAwesome / 留空不显示）</em></span>
+      <input type="text" name="icon" id="cat-icon" maxlength="256" placeholder="如 🛠️、https://…/a.png、fa-solid fa-house">
+    </label>
+
+    <label class="field">
+      <span>排序号</span>
+      <input type="number" name="sort_order" id="cat-sort" placeholder="留空自动排到末尾">
+    </label>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn-ghost" data-close="cat-dialog">取消</button>
+      <button type="submit" class="btn-primary">保存</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 网址编辑弹窗 -->
+<dialog class="dialog" id="link-dialog">
+  <form method="post" id="link-form" action="{{ .AdminBase }}/links">
+    <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+    <h3 class="dialog-title" id="link-dialog-title">新增网址</h3>
+
+    <label class="field">
+      <span>所属分类 <b class="req">*</b></span>
+      <select name="category_id" id="link-cat" required>
+        <option value="">请选择</option>
+        {{ range .AllCategories }}
+        <option value="{{ .ID }}">{{ .Name }}</option>
+        {{ end }}
+      </select>
+    </label>
+
+    <label class="field">
+      <span>名称 <b class="req">*</b></span>
+      <input type="text" name="title" id="link-title" required maxlength="128" placeholder="例如：GitHub">
+    </label>
+
+    <label class="field">
+      <span>网址 <b class="req">*</b></span>
+      <input type="text" name="url" id="link-url" required maxlength="2048" placeholder="github.com 或 https://github.com">
+    </label>
+
+    <label class="field">
+      <span>图标 <em class="field-hint">（Emoji / 图片地址 / FontAwesome / 留空自动取 favicon）</em></span>
+      <input type="text" name="icon" id="link-icon" maxlength="256" placeholder="如 🚀、https://…/a.png、fa-brands fa-github">
+    </label>
+
+    <label class="field">
+      <span>描述</span>
+      <input type="text" name="description" id="link-desc" maxlength="256" placeholder="可选，显示在名称下方">
+    </label>
+
+    <label class="field">
+      <span>排序号</span>
+      <input type="number" name="sort_order" id="link-sort" placeholder="留空自动排到末尾">
+    </label>
+
+    <div class="dialog-actions">
+      <button type="button" class="btn-ghost" data-close="link-dialog">取消</button>
+      <button type="submit" class="btn-primary">保存</button>
+    </div>
+  </form>
+</dialog>
+
+{{ template "footer.html" . }}

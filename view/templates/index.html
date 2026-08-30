@@ -1,0 +1,107 @@
+{{ template "head.html" . }}
+{{ if .Background }}
+<div class="site-background" style="background-image:url('/uploads/{{ .Background.Filename }}')"></div>
+{{ end }}
+{{ template "header.html" . }}
+
+<main class="page wrap">
+  {{ if .Categories }}
+    <!-- 侧边栏模式的分类导航（默认隐藏） -->
+    <aside class="category-sidebar" id="category-sidebar" hidden>
+      <nav class="cat-nav">
+        {{ range $i, $c := .Categories }}
+        <a class="cat-nav-item{{ if eq $i 0 }} active{{ end }}" href="#cat-{{ $i }}" data-cat-index="{{ $i }}">
+          {{ if $.Display.ShowCatIcon }}
+            {{ if eq $c.IconKind "text" }}<span class="cat-nav-emoji">{{ $c.IconText }}</span>
+            {{ else if eq $c.IconKind "url" }}<img class="cat-nav-img" src="{{ $c.IconSrc }}" alt="" loading="lazy">
+            {{ else if eq $c.IconKind "fa" }}<i class="cat-nav-fa {{ $c.IconFA }}"></i>{{ end }}
+          {{ end }}
+          <span class="cat-nav-name">{{ $c.Name }}</span>
+          <span class="cat-nav-count">{{ len $c.Links }}</span>
+        </a>
+        {{ end }}
+      </nav>
+    </aside>
+
+    <div class="category-content" id="category-content">
+    {{ range $i, $c := .Categories }}
+    <section class="category" data-category data-cat-index="{{ $i }}" id="cat-{{ $i }}">
+      <h2 class="category-title">
+        {{ if $.Display.ShowCatIcon }}
+          {{ if eq $c.IconKind "text" }}
+            <span class="category-emoji">{{ $c.IconText }}</span>
+          {{ else if eq $c.IconKind "url" }}
+            <img class="category-icon-img" src="{{ $c.IconSrc }}" alt="" loading="lazy">
+          {{ else if eq $c.IconKind "fa" }}
+            <i class="category-icon-fa {{ $c.IconFA }}"></i>
+          {{ end }}
+        {{ end }}
+        <span class="category-name">{{ $c.Name }}</span>
+        <span class="category-count">{{ len $c.Links }}</span>
+      </h2>
+
+      {{ if $c.Links }}
+      <div class="links">
+        {{ range $c.Links }}
+        <a class="link-item" href="{{ .URL }}" target="_blank" rel="noopener noreferrer"
+           data-title="{{ .Title }}" data-desc="{{ .Description }}" data-url="{{ .URL }}">
+          <span class="link-card">
+            {{ if $.Display.ShowLinkIcon }}
+            <span class="link-icon-wrap">
+              {{ if eq .IconKind "text" }}
+                <span class="link-icon link-icon-text">{{ .IconText }}</span>
+              {{ else if eq .IconKind "fa" }}
+                <span class="link-icon link-icon-fa"><i class="{{ .IconFA }}"></i></span>
+              {{ else }}
+                <img class="link-icon" src="{{ .IconSrc }}" alt="" loading="lazy" decoding="async"
+                     data-initial="{{ .Initial }}" data-hue="{{ .Hue }}">
+              {{ end }}
+            </span>
+            {{ end }}
+            <span class="link-body">
+              <span class="link-title">{{ .Title }}</span>
+              {{ if .Description }}<span class="link-desc">{{ .Description }}</span>{{ end }}
+              {{ if $.Display.ShowLinkURL }}<span class="link-url">{{ .Host }}</span>{{ end }}
+            </span>
+          </span>
+        </a>
+        {{ end }}
+      </div>
+      {{ else }}
+        <p class="category-empty">该分类下还没有网址</p>
+      {{ end }}
+    </section>
+    {{ end }}
+    </div>
+    <p class="no-result" id="no-result" hidden>没有匹配的网址</p>
+  {{ else }}
+    <div class="empty-state">
+      <div class="empty-emoji">🧭</div>
+      <h2>还没有可显示的网址</h2>
+      {{ if .HasCategories }}
+        <p>已有分类，但它们下面还没有网址，去后台添加即可显示</p>
+      {{ else }}
+        <p>去后台添加第一个分类和网址吧</p>
+      {{ end }}
+      {{ if .IsLoggedIn }}
+      <a class="btn-primary" href="{{ .AdminBase }}">进入后台</a>
+      {{ end }}
+    </div>
+  {{ end }}
+</main>
+
+<!-- 右下角浮动按钮 -->
+<div class="float-actions">
+  <button type="button" class="float-btn" id="back-top-btn" title="返回顶部" aria-label="返回顶部" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+  </button>
+  <button type="button" class="float-btn" id="layout-toggle-btn" title="切换列表模式" aria-label="切换列表模式">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+  </button>
+</div>
+
+<footer class="site-footer">
+  <span>共 {{ .TotalLinks }} 个网址</span>
+</footer>
+
+{{ template "footer.html" . }}

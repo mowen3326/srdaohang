@@ -1,0 +1,50 @@
+{{ template "head.html" . }}
+
+<main class="login-page">
+  <form class="login-card" method="post" action="{{ .AdminBase }}/setup">
+    <div class="login-brand">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2l7 4v6c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V6z"></path>
+          <path d="M9.5 12.2l1.8 1.8 3.4-3.6"></path>
+        </svg>
+      </div>
+      <h1>创建管理员账号</h1>
+      <p>首次使用，请设置后台登录凭据</p>
+    </div>
+
+    {{ if .Error }}
+    <div class="alert" role="alert">
+      {{ if eq .Error "user_short" }}用户名至少需要 2 个字符{{ end }}
+      {{ if eq .Error "pass_short" }}密码至少需要 {{ .MinLen }} 位{{ end }}
+      {{ if eq .Error "pass_mismatch" }}两次输入的密码不一致{{ end }}
+    </div>
+    {{ end }}
+
+    <label class="field">
+      <span>用户名 <b class="req">*</b></span>
+      <input type="text" name="username" required autofocus
+             autocomplete="username" placeholder="用于登录后台">
+    </label>
+
+    <label class="field">
+      <span>密码 <b class="req">*</b></span>
+      <input type="password" name="password" required
+             autocomplete="new-password" placeholder="至少 {{ .MinLen }} 位">
+    </label>
+
+    <label class="field">
+      <span>确认密码 <b class="req">*</b></span>
+      <input type="password" name="password_confirm" required
+             autocomplete="new-password" placeholder="再次输入密码">
+    </label>
+
+    <button type="submit" class="btn-primary btn-block">创建并进入后台</button>
+
+    <p class="setup-tip">
+      账号信息保存在本地数据库，密码经 PBKDF2 加盐哈希存储，不会明文保存。
+    </p>
+  </form>
+</main>
+
+{{ template "footer.html" . }}

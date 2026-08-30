@@ -1,0 +1,66 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+  {{ template "admin_sidebar.html" . }}
+  <main class="admin-main">
+    <section class="tab-panel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>背景图</h2>
+          <form method="post" action="{{ .AdminBase }}/backgrounds/toggle" class="inline-form">
+            <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+            {{ if .Enabled }}
+              <button type="submit" name="enable" value="0" class="btn-ghost">关闭背景图</button>
+            {{ else }}
+              <button type="submit" name="enable" value="1" class="btn-primary">开启背景图</button>
+            {{ end }}
+          </form>
+        </div>
+
+        <p class="admin-tip">
+          上传的图片将作为前台背景显示，未上传时前台保持默认样式。上传后会自动切换为该图，也可以在下方列表点击切换或移除。
+          {{ if .Enabled }}当前背景图<b>已开启</b>，前台会显示生效的背景图。{{ else }}当前背景图<b>已关闭</b>，前台不显示背景图。{{ end }}
+        </p>
+
+        <form method="post" action="{{ .AdminBase }}/backgrounds" enctype="multipart/form-data" class="bg-upload">
+          <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+          <input type="file" name="background" accept="image/jpeg,image/png,image/gif,image/webp" required>
+          <button type="submit" class="btn-primary">上传背景图</button>
+        </form>
+
+        {{ if .Backgrounds }}
+        <div class="bg-grid">
+          {{ range .Backgrounds }}
+          <div class="bg-card{{ if .Active }} active{{ end }}">
+            <div class="bg-thumb" style="background-image:url('/uploads/{{ .Filename }}')">
+              {{ if .Active }}<span class="bg-badge">使用中</span>{{ end }}
+            </div>
+            <div class="bg-meta">
+              <span class="bg-name ellipsis" title="{{ .Original }}">{{ .Original }}</span>
+              <div class="bg-actions">
+                {{ if not .Active }}
+                <form method="post" action="{{ $.AdminBase }}/backgrounds/{{ .ID }}/activate" class="inline-form">
+                  <input type="hidden" name="_csrf" value="{{ $.CSRFToken }}">
+                  <button type="submit" class="btn-mini">切换使用</button>
+                </form>
+                {{ end }}
+                <form method="post" action="{{ $.AdminBase }}/backgrounds/{{ .ID }}/delete" class="inline-form"
+                      onsubmit="return confirm('确定删除这张背景图？')">
+                  <input type="hidden" name="_csrf" value="{{ $.CSRFToken }}">
+                  <button type="submit" class="btn-mini danger">删除</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {{ end }}
+        </div>
+        {{ else }}
+          <p class="panel-empty">还没有背景图，上传一张吧</p>
+        {{ end }}
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ template "footer.html" . }}

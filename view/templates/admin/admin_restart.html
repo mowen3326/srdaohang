@@ -1,0 +1,25 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<main class="restart-page">
+  <div class="panel restart-panel">
+    <h2>后台路径已修改</h2>
+    <p class="field-desc">服务正在重启以应用新路径，稍后将自动跳转到新地址：</p>
+    <p class="restart-target" id="new-path"></p>
+    <div class="spinner"></div>
+  </div>
+</main>
+
+<script>
+(function () {
+  var base = "{{ .NewBase }}";
+  var el = document.getElementById('new-path');
+  if (el) { el.textContent = base; }
+  // 延迟跳转：等待服务重启完成（重启约 1 秒 + 启动约 1 秒）
+  setTimeout(function () {
+    window.location.href = base;
+  }, 2800);
+})();
+</script>
+
+{{ template "footer.html" . }}

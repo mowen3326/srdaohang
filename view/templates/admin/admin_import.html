@@ -1,0 +1,97 @@
+{{ template "head.html" . }}
+{{ template "admin_nav.html" . }}
+
+<div class="admin-layout">
+  {{ template "admin_sidebar.html" . }}
+  <main class="admin-main">
+    <section class="tab-panel">
+      <div class="panel">
+        <div class="panel-head"><h2>导入收藏</h2></div>
+
+        <p class="admin-tip">
+          导入主流浏览器（Chrome / Edge / Firefox 等）导出的 HTML 收藏夹文件，读取其中的网站名称和网址。
+        </p>
+
+        {{ if .ImportMessage }}
+        <div class="alert alert-ok" role="alert">{{ .ImportMessage }}</div>
+        {{ end }}
+        {{ if .ImportError }}
+        <div class="alert" role="alert">{{ .ImportError }}</div>
+        {{ end }}
+
+        {{ if not .Bookmarks }}
+        <form method="post" action="{{ .AdminBase }}/import" enctype="multipart/form-data" class="bg-upload">
+          <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+          <input type="file" name="bookmarks" accept=".html,.htm,text/html" required>
+          <button type="submit" class="btn-primary">解析收藏夹</button>
+        </form>
+        {{ end }}
+
+        {{ if .Bookmarks }}
+        <form method="post" action="{{ .AdminBase }}/import/save" id="import-form">
+          <input type="hidden" name="_csrf" value="{{ .CSRFToken }}">
+          <input type="hidden" name="bookmarks" value="{{ .BookmarksRaw }}">
+
+          <div class="import-toolbar">
+            <div class="import-select">
+              <label class="check">
+                <input type="checkbox" id="select-all">
+                <span>全选</span>
+              </label>
+              <span class="import-count">共 {{ .BookmarkCount }} 条</span>
+            </div>
+            <div class="import-submit">
+              <label class="field field-inline">
+                <span>移动到分类</span>
+                <select name="category_id" required>
+                  <option value="">请选择分类…</option>
+                  {{ range .Categories }}
+                  <option value="{{ .ID }}">{{ .Name }}</option>
+                  {{ end }}
+                </select>
+              </label>
+              <button type="submit" class="btn-primary">导入所选</button>
+            </div>
+          </div>
+
+          {{ range $gi, $g := .BookmarkGroups }}
+          <div class="import-group" data-group="{{ $gi }}">
+            <div class="import-group-head">
+              <label class="check import-group-check">
+                <input type="checkbox" class="group-select-all" data-group="{{ $gi }}">
+                <span class="import-folder">{{ if $g.Folder }}{{ $g.Folder }}{{ else }}未分类{{ end }}</span>
+              </label>
+              <span class="import-group-count">{{ len $g.Bookmarks }} 条</span>
+            </div>
+            <div class="import-table">
+              <div class="import-thead">
+                <div class="import-col-check"></div>
+                <div class="import-col-title">网站名称</div>
+                <div class="import-col-url">网址</div>
+              </div>
+              <div class="import-tbody">
+                {{ range $g.Bookmarks }}
+                <label class="import-row">
+                  <div class="import-col-check">
+                    <input type="checkbox" name="selected" value="{{ .Index }}" class="import-check" data-group="{{ $gi }}">
+                  </div>
+                  <div class="import-col-title ellipsis" title="{{ .Title }}">{{ .Title }}</div>
+                  <div class="import-col-url ellipsis" title="{{ .URL }}">{{ .URL }}</div>
+                </label>
+                {{ end }}
+              </div>
+            </div>
+          </div>
+          {{ end }}
+
+          <div class="dialog-actions">
+            <button type="submit" class="btn-primary">导入所选</button>
+          </div>
+        </form>
+        {{ end }}
+      </div>
+    </section>
+  </main>
+</div>
+
+{{ template "footer.html" . }}
